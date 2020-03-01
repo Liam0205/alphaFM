@@ -19,7 +19,7 @@ struct trainer_option
     double v_alpha, v_beta, v_l1, v_l2;
     int threads_num, factor_num;
     bool k0, k1, b_init, force_v_sparse;
-    
+
     void parse_option(const vector<string>& args)
     {
         int argc = args.size();
@@ -159,10 +159,10 @@ public:
     virtual void run_task(vector<string>& dataBuffer);
     bool load_model(const string& modelPath, const string& modelFormat);
     bool output_model(const string& modelPath, const string& modelFormat);
-    
+
 private:
-    void train(int y, const vector<pair<string, double> >& x);
-    
+    void train(double w, int y, const vector<pair<string, double> >& x);
+
 private:
     ftrl_model<T>* pModel;
     lock_pool* pLockPool;
@@ -196,10 +196,9 @@ ftrl_trainer<T>::ftrl_trainer(const trainer_option& opt)
 template<typename T>
 void ftrl_trainer<T>::run_task(vector<string>& dataBuffer)
 {
-    for(size_t i = 0; i < dataBuffer.size(); ++i)
-    {
-        fm_sample sample(dataBuffer[i]);
-        train(sample.y, sample.x);
+    for (auto& line : dataBuffer) {
+        fm_sample sample(line);
+        train(sample.w, sample.y, sample.x);
     }
 }
 
@@ -220,7 +219,7 @@ bool ftrl_trainer<T>::output_model(const string& modelPath, const string& modelF
 
 //输入一个样本，更新参数
 template<typename T>
-void ftrl_trainer<T>::train(int y, const vector<pair<string, double> >& x)
+void ftrl_trainer<T>::train(double w, int y, const vector<pair<string, double> >& x)
 {
     ftrl_model_unit<T>* thetaBias = pModel->get_or_init_model_unit_bias();
     vector<ftrl_model_unit<T>*> theta(x.size(), NULL);
@@ -290,7 +289,7 @@ void ftrl_trainer<T>::train(int y, const vector<pair<string, double> >& x)
     vector<double> sum(pModel->factor_num);
     double bias = thetaBias->wi;
     double p = pModel->predict(x, bias, theta, sum);
-    double mult = y * (1 / (1 + exp(-p * y)) - 1);
+    double mult = w * y * (1 / (1 + exp(-p * y)) - 1);
     //update w_n, w_z
     for(int i = 0; i <= xLen; ++i)
     {

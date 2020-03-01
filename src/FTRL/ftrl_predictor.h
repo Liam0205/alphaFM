@@ -11,7 +11,7 @@ struct predictor_option
     predictor_option() : factor_num(8), threads_num(1), model_format("txt") {}
     string model_path, model_format, predict_path, model_number_type;
     int threads_num, factor_num;
-    
+
     void parse_option(const vector<string>& args)
     {
         int argc = args.size();
@@ -74,7 +74,7 @@ public:
     ftrl_predictor(const predictor_option& opt);
     ~ftrl_predictor();
     virtual void run_task(vector<string>& dataBuffer);
-    
+
 private:
     predict_model<T>* pModel;
     ofstream fPredict;
@@ -113,11 +113,11 @@ template<typename T>
 void ftrl_predictor<T>::run_task(vector<string>& dataBuffer)
 {
     vector<string> outputVec(dataBuffer.size());
-    for(size_t i = 0; i < dataBuffer.size(); ++i)
+    for (size_t i = 0; i < dataBuffer.size(); ++i)
     {
         fm_sample sample(dataBuffer[i]);
         double score = pModel->get_score(sample.x, pModel->muBias->wi, pModel->muMap);
-        outputVec[i] = to_string(sample.y) + " " + to_string(score);
+        outputVec[i] = to_string(sample.w) + " " + to_string(sample.y) + " " + to_string(score);
     }
     outMtx.lock();
     for(size_t i = 0; i < outputVec.size(); ++i)
