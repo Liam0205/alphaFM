@@ -24,7 +24,7 @@ public:
     T wi;
     T w_ni;
     T w_zi;
-    
+
 private:
     static size_t offset_v;
     static size_t offset_vn;
@@ -51,20 +51,20 @@ public:
         }
         ext_mem_size = (int)(3 * _factor_num * sizeof(T)) - (int)padding;
     }
-    
-    
+
+
     inline static int get_ext_mem_size()
     {
         return ext_mem_size;
     }
-    
-    
+
+
     static size_t get_mem_size()
     {
         return class_size + 3 * factor_num * sizeof(T);
     }
-    
-    
+
+
     static ftrl_model_unit* create_instance(int _factor_num, double v_mean, double v_stdev)
     {
         size_t mem_size = get_mem_size();
@@ -73,8 +73,8 @@ public:
         pInstance->instance_init(_factor_num, v_mean, v_stdev);
         return pInstance;
     }
-    
-    
+
+
     static ftrl_model_unit* create_instance(int _factor_num, const vector<string>& modelLineSeg)
     {
         size_t mem_size = get_mem_size();
@@ -83,12 +83,12 @@ public:
         pInstance->instance_init(_factor_num, modelLineSeg);
         return pInstance;
     }
-    
-    
+
+
     ftrl_model_unit()
     {}
-    
-    
+
+
     void instance_init(int _factor_num, double v_mean, double v_stdev)
     {
         wi = 0.0;
@@ -101,8 +101,8 @@ public:
             v_zi(f) = 0.0;
         }
     }
-    
-    
+
+
     void instance_init(int _factor_num, const vector<string>& modelLineSeg)
     {
         wi = stod(modelLineSeg[1]);
@@ -115,29 +115,29 @@ public:
             v_zi(f) = stod(modelLineSeg[4 + 2 * _factor_num + f]);
         }
     }
-    
-    
+
+
     inline T& vi(size_t f) const
     {
         char* p = (char*)this + class_size;
         return *((T*)p + offset_v + f);
     }
-    
-    
+
+
     inline T& v_ni(size_t f) const
     {
         char* p = (char*)this + class_size;
         return *((T*)p + offset_vn + f);
     }
-    
-    
+
+
     inline T& v_zi(size_t f) const
     {
         char* p = (char*)this + class_size;
         return *((T*)p + offset_vz + f);
     }
-    
-    
+
+
     void reinit_vi(double v_mean, double v_stdev)
     {
         for(int f = 0; f < factor_num; ++f)
@@ -145,8 +145,8 @@ public:
             vi(f) = utils::gaussian(v_mean, v_stdev);
         }
     }
-    
-    
+
+
     inline bool is_none_zero()
     {
         if(0.0 != wi) return true;
@@ -156,8 +156,8 @@ public:
         }
         return false;
     }
-    
-    
+
+
     friend inline ostream& operator <<(ostream& os, const ftrl_model_unit& mu)
     {
         os << mu.wi;
@@ -228,7 +228,7 @@ private:
     bool output_txt_model(const string& modelPath);
     bool output_bin_model(const string& modelPath);
     inline char* create_fea_c_str(const char* key);
-    
+
 private:
     mutex mtx;
     mutex mtx_bias;
