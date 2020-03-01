@@ -5,42 +5,46 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
-
 class fm_sample
 {
 public:
+    double w = 1.0;
     int y;
-    vector<pair<string, double> > x;
-    fm_sample(const string& line);
+    std::vector<std::pair<std::string, double>> x;
+    fm_sample(const std::string& line);
 private:
-    static const string spliter;
-    static const string innerSpliter;
+    static const char* spliter;
+    static const char* innerSpliter;
 };
 
-const string fm_sample::spliter = " ";
-const string fm_sample::innerSpliter = ":";
+const char* fm_sample::spliter = " ";
+const char* fm_sample::innerSpliter = ":";
 
-
-fm_sample::fm_sample(const string& line)
+fm_sample::fm_sample(const std::string& line)
 {
     this->x.clear();
+
     size_t posb = line.find_first_not_of(spliter, 0);
     size_t pose = line.find_first_of(spliter, posb);
+    this->w = std::stod(line.substr(posb, pose - posb));
+
+    posb = line.find_first_not_of(spliter, pose);
+    pose = line.find_first_of(spliter, posb);
     int label = atoi(line.substr(posb, pose-posb).c_str());
     this->y = label > 0 ? 1 : -1;
-    string key;
+
+    std::string key;
     double value;
-    while(pose < line.size())
+    const size_t linesz = line.size();
+    while(pose < linesz)
     {
         posb = line.find_first_not_of(spliter, pose);
-        if(posb == string::npos)
+        if(posb == std::string::npos)
         {
             break;
         }
         pose = line.find_first_of(innerSpliter, posb);
-        if(pose == string::npos)
+        if(pose == std::string::npos)
         {
             cerr << "wrong line of sample input\n" << line << endl;
             exit(1);
@@ -56,10 +60,9 @@ fm_sample::fm_sample(const string& line)
         value = stod(line.substr(posb, pose-posb));
         if(value != 0)
         {
-            this->x.push_back(make_pair(key, value));
+            this->x.emplace_back(key, value);
         }
     }
 }
-
 
 #endif /*FM_SAMPLE_H_*/
